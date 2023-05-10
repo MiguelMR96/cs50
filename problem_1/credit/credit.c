@@ -1,14 +1,20 @@
 #include <stdio.h>
+#include <stdbool.h>
+
+int sum_card_numbers(int digit);
 
 int main(void) 
 {
     long card_number;
-    int temp;
+    long temp;
+    long temp_card;
     int scanned;
     int digits;
-    int single_digit[16];
-    int product_digit[16];
-    int splitted_product[16];
+    int digit;
+    bool other_digit = false;
+    int sum = 0;
+    int other_sum = 0;
+    int total = 0;
 
     // Print for user credit card number input
     printf("Number: ");
@@ -22,7 +28,7 @@ int main(void)
 
     // Counts the digits of the credit card's input
     temp = card_number;
-    for (digits = 0; temp != 0; digits++) {
+    for (digits = 0; temp > 0; digits++) {
         temp /= 10;
     }
 
@@ -32,30 +38,50 @@ int main(void)
         return 1;
     }
 
-    card_number /= 10;
-    for (int i = 0; i < 17; i++) {
-        single_digit[i] = card_number % 10;
-        product_digit[i] = single_digit[i] * 2;
-        if (product_digit[i] > 0) {
-            for (int j = 0; product_digit[i] > 0; j++) {
-                splitted_product[j] = product_digit[j] % 10;
-                product_digit[i] /= 10;
-                printf("splitted_product value is: %d\n", splitted_product[j]);
-            }
+    temp_card = card_number;
+    while (temp_card > 0) {
+        if (other_digit == true) {
+            digit = temp_card % 10;
+            temp = sum_card_numbers(digit);
+            sum += temp;
+        } else {
+            other_sum += temp_card % 10;
         }
-        card_number /= 100;
-        printf("product_digit value is: %d\n", product_digit[i]);
+        temp_card /= 10;
+        other_digit = !other_digit;
+    }
+    total = sum + other_sum;
+    if (total % 10 == 0) {
+        if (digits == 16) {
+            int first_two_digits = card_number / 100000000000000;
+            if (first_two_digits / 10 == 4) {
+                printf("VISA\n");
+            } else if (first_two_digits < 56 || first_two_digits > 50) {
+                printf("MASTERCARD\n");
+            }
+        } else if (digits == 13) {
+            printf("VISA\n");
+        } else if (digits == 15) {
+            printf("AMEX\n");
+        }
+    } else {
+        printf("INVALID\n");
     }
 
-    for (int i = 0; i > 16; i++) {
-        if (product_digit[i] > 0) {
-            for (int j = 0; product_digit[j] > 0; j++) {
-                splitted_product[j] = product_digit[j] % 10;
-                product_digit[j] /= 10;
-                printf("splitted_product value is: %d\n", splitted_product[j]);
-            }
-        }
-        printf("Not entering here");
-    }
     return 0;
+}
+
+int sum_card_numbers(int digit) {
+    int sum = 0;
+    int number;
+
+    digit *= 2;
+
+    while (digit > 0) {
+        number = digit % 10;
+        sum += number;
+        digit /= 10;
+    }
+
+    return sum;
 }
